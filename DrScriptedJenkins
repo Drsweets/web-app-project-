@@ -24,6 +24,6 @@ node(""){
 
         stage('Deploy to Tomcat'){
         sh "echo to Tomcat Server"
-        deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://52.90.229.7:8080/')], contextPath: null, war: 'target/*.war' 
+        deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.234.2.137:8080/')], contextPath: null, war: 'target/*.war' 
     }
 }
