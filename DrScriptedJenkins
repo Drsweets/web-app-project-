@@ -1,0 +1,29 @@
+// Scripted pipeline
+node(""){
+    def MHD = tool name: "Maven 3.9.6"  
+
+    stage('GitClone') {
+        sh "echo this is git clone"
+        git credentialsId: 'jenkins-github', url: 'https://github.com/Drsweets/web-app-project-.git'
+    }
+
+    stage('Build') {
+        sh "echo start of build process"
+        sh "${MHD}/bin/mvn package"
+    }
+    
+     stage('CodeQuality') {
+        echo "Performing SonarQube Test"
+        sh "${MHD}/bin/mvn sonar:sonar"
+    }
+    
+        stage('BackupArtifacts'){
+        sh "echo back up to Nexus"
+        sh "${MHD}/bin/mvn deploy" 
+    }
+
+        stage('Deploy to Tomcat'){
+        sh "echo to Tomcat Server"
+        deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://52.90.229.7:8080/')], contextPath: null, war: 'target/*.war' 
+    }
+}
