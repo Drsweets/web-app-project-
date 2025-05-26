@@ -1,0 +1,48 @@
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven 3.9.6'
+    }
+
+    stages {
+        stage('1. Git Clone') {
+            steps {
+                echo "Cloning Git repository"
+                git credentialsId: 'jenkins-github', url: 'https://github.com/Drsweets/web-app-project-.git'
+            }
+        }
+
+        stage('2. Build') {
+            steps {
+                echo "Start of build process"
+                sh 'mvn package'
+            }
+        }
+
+        stage('3. Code Quality') {
+            steps {
+                echo "Running SonarQube analysis"
+                sh 'mvn sonar:sonar'
+            }
+        }
+
+        stage('4. Backup Artifacts') {
+            steps {
+                echo "Backing up to Nexus"
+                sh 'mvn deploy'
+            }
+        }
+
+        stage('5. Deploy to Tomcat') {
+            steps {
+                echo "Deploying to Tomcat Server"
+                deploy adapters: [
+                    tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://18.214.100.101:8080')
+                ], contextPath: null, war: 'target/*.war'
+        
+            }
+        }
+    }
+}
